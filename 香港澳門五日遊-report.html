@@ -7,17 +7,20 @@
 <style>
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; }
 body {
   font-family: 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--lgray);
   line-height: 1.7;
   overflow-x: hidden;
+  font-size: clamp(14px, 0.9rem + 0.2vw, 17px);
 }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
 /* ── Color Tokens — Dark (default) ── */
 :root {
+  --nav-h: 50px;
   --bg: #0d0d1a;
   --bg2: #141428;
   --card: #1a1a2e;
@@ -37,6 +40,15 @@ body {
   --dgray: #444466;
   --code-bg: #111122;
   --border: #2a2a44;
+  --hero-glow-1: rgba(78,201,240,0.08);
+  --hero-glow-2: rgba(187,134,252,0.06);
+  --blue-tint: rgba(78,201,240,0.04);
+  --blue-glow: rgba(78,201,240,0.4);
+  --blue-shadow: rgba(78,201,240,0.15);
+  --red-tint: rgba(240,110,110,0.05);
+  --red-tint-bg: rgba(240,110,110,0.08);
+  --red-tint-border: rgba(240,110,110,0.25);
+  --green-tint: rgba(80,227,160,0.05);
 }
 
 /* ── Color Tokens — Light ── */
@@ -60,14 +72,23 @@ body.light {
   --dgray: #94a3b8;
   --code-bg: #f1f5f9;
   --border: #e2e8f0;
+  --hero-glow-1: rgba(37,99,235,0.10);
+  --hero-glow-2: rgba(124,58,237,0.08);
+  --blue-tint: rgba(37,99,235,0.05);
+  --blue-glow: rgba(37,99,235,0.35);
+  --blue-shadow: rgba(37,99,235,0.18);
+  --red-tint: rgba(220,38,38,0.05);
+  --red-tint-bg: rgba(220,38,38,0.08);
+  --red-tint-border: rgba(220,38,38,0.3);
+  --green-tint: rgba(22,163,74,0.06);
 }
 
 /* ── Typography ── */
 h1, h2, h3, h4 { color: var(--white); font-weight: 700; }
-h1 { font-size: 2.8rem; line-height: 1.2; }
-h2 { font-size: 2rem; margin-bottom: 0.5rem; }
-h3 { font-size: 1.4rem; margin-bottom: 0.4rem; }
-h4 { font-size: 1.1rem; }
+h1 { font-size: clamp(1.8rem, 3.5vw + 0.5rem, 2.8rem); line-height: 1.2; }
+h2 { font-size: clamp(1.4rem, 2vw + 0.6rem, 2rem); margin-bottom: 0.5rem; }
+h3 { font-size: clamp(1.15rem, 1vw + 0.75rem, 1.4rem); margin-bottom: 0.4rem; }
+h4 { font-size: clamp(1rem, 0.4vw + 0.9rem, 1.1rem); }
 p { margin-bottom: 0.8rem; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -85,9 +106,10 @@ strong { color: var(--white); }
 em { color: var(--lgray); }
 
 /* ── Layout ── */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-section { padding: 4rem 0; border-bottom: 1px solid var(--border); }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 clamp(1rem, 2vw, 2rem); }
+section { padding: clamp(2rem, 5vw, 4rem) 0; border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--nav-h) + 1rem); }
 section:last-child { border-bottom: none; }
+.hero { scroll-margin-top: var(--nav-h); }
 
 /* ── Navigation ── */
 nav {
@@ -98,26 +120,31 @@ nav {
 }
 body.light nav { background: rgba(248,249,252,0.92); }
 nav .nav-inner {
-  max-width: 1200px; margin: 0 auto; padding: 0.6rem 2rem;
-  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1200px; margin: 0 auto; padding: 0.6rem clamp(1rem, 2vw, 2rem);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
 }
-nav .nav-brand { font-size: 1rem; font-weight: 700; color: var(--blue); }
-nav .nav-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
-nav .nav-links a { font-size: 0.82rem; color: var(--lgray); transition: color 0.2s; }
+nav .nav-brand { font-size: 1rem; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+nav .nav-brand:hover { text-decoration: none; opacity: 0.85; }
+nav .nav-links {
+  display: flex; gap: 1.2rem; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; max-width: 100%;
+}
+nav .nav-links::-webkit-scrollbar { display: none; }
+nav .nav-links a { font-size: 0.82rem; color: var(--lgray); transition: color 0.2s; white-space: nowrap; }
 nav .nav-links a:hover { color: var(--blue); text-decoration: none; }
 
-/* ── Theme Toggle ── */
+/* ── Theme Toggle (inside nav) ── */
 .theme-toggle {
-  position: fixed; top: 16px; right: 16px; z-index: 200;
-  background: rgba(99,102,241,0.9); color: #fff; border: none; border-radius: 8px;
-  padding: 8px 16px; font-size: 13px; cursor: pointer; font-family: inherit;
-  backdrop-filter: blur(8px);
+  background: rgba(99,102,241,0.9); color: #fff; border: none; border-radius: 6px;
+  padding: 5px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit;
+  flex-shrink: 0; transition: background 0.2s;
 }
+.theme-toggle:hover { background: rgba(99,102,241,1); }
 
 /* ── Hero ── */
 .hero {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden; padding-top: 60px;
+  position: relative; overflow: hidden; padding-top: var(--nav-h);
   background: linear-gradient(135deg, #0d0d1a 0%, #1a1035 50%, #0d1a2e 100%);
 }
 body.light .hero {
@@ -125,8 +152,8 @@ body.light .hero {
 }
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 30% 40%, rgba(78,201,240,0.08) 0%, transparent 50%),
-              radial-gradient(circle at 70% 60%, rgba(187,134,252,0.06) 0%, transparent 50%);
+  background: radial-gradient(circle at 30% 40%, var(--hero-glow-1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, var(--hero-glow-2) 0%, transparent 50%);
 }
 .hero-content { position: relative; text-align: center; max-width: 900px; }
 .hero-badge {
@@ -134,12 +161,12 @@ body.light .hero {
   padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.85rem; color: var(--green);
   margin-bottom: 1.5rem;
 }
-.hero h1 { font-size: 3.2rem; margin-bottom: 0.8rem; }
+.hero h1 { font-size: clamp(2rem, 5vw + 0.5rem, 3.2rem); margin-bottom: 0.8rem; }
 .hero h1 span {
   background: linear-gradient(135deg, var(--blue), var(--purple));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.hero .subtitle { font-size: 1.3rem; color: var(--lgray); margin-bottom: 2.5rem; }
+.hero .subtitle { font-size: clamp(1rem, 1vw + 0.75rem, 1.3rem); color: var(--lgray); margin-bottom: 2.5rem; }
 .hero-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
 .hero-stat {
   background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -155,7 +182,7 @@ body.light .hero {
   display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
   text-transform: uppercase; margin-bottom: 0.5rem;
 }
-.section-header p { color: var(--lgray); font-size: 1.05rem; max-width: 700px; }
+.section-header p { color: var(--lgray); font-size: clamp(0.95rem, 0.5vw + 0.85rem, 1.1rem); max-width: 700px; margin-bottom: 0; }
 
 /* ── Cards ── */
 .card {
@@ -175,7 +202,7 @@ th {
   text-align: left; padding: 0.6rem 0.8rem; border-bottom: 2px solid var(--border);
 }
 td { padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border); }
-tr:hover td { background: rgba(78,201,240,0.04); }
+tr:hover td { background: var(--blue-tint); }
 
 /* ── Tags ── */
 .tag {
@@ -254,8 +281,8 @@ tr:hover td { background: rgba(78,201,240,0.04); }
   border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
 }
 .comparison .side { padding: 1.5rem; }
-.comparison .side-before { background: rgba(240,110,110,0.05); border-right: 1px solid var(--border); }
-.comparison .side-after { background: rgba(80,227,160,0.05); }
+.comparison .side-before { background: var(--red-tint); border-right: 1px solid var(--border); }
+.comparison .side-after { background: var(--green-tint); }
 .comparison .side h3 { margin-bottom: 1rem; }
 @media (max-width: 768px) {
   .comparison { grid-template-columns: 1fr; }
@@ -264,7 +291,7 @@ tr:hover td { background: rgba(78,201,240,0.04); }
 
 /* ── Danger Box ── */
 .danger-box {
-  background: rgba(240,110,110,0.08); border: 1px solid rgba(240,110,110,0.25);
+  background: var(--red-tint-bg); border: 1px solid var(--red-tint-border);
   border-radius: 10px; padding: 1.2rem 1.5rem; margin: 1rem 0;
 }
 .danger-box h4 { color: var(--red); }
@@ -279,7 +306,7 @@ tr:hover td { background: rgba(78,201,240,0.04); }
   background: var(--card2); border: 1px solid var(--border); border-radius: 8px;
   padding: 0.8rem 1.2rem; min-width: 120px; text-align: center;
 }
-.arch-box.highlight { border-color: var(--blue); box-shadow: 0 0 12px rgba(78,201,240,0.15); }
+.arch-box.highlight { border-color: var(--blue); box-shadow: 0 0 12px var(--blue-shadow); }
 .arch-arrow {
   color: var(--dgray); font-size: 1.2rem;
   display: flex; align-items: center; justify-content: center; padding: 0.3rem 0;
@@ -302,13 +329,48 @@ tr:hover td { background: rgba(78,201,240,0.04); }
 }
 .toc-dot {
   width: 8px; height: 8px; border-radius: 50%; background: var(--dgray);
-  transition: all 0.3s; cursor: pointer;
+  transition: all 0.3s; cursor: pointer; position: relative;
 }
 .toc-dot.active {
-  background: var(--blue); box-shadow: 0 0 8px rgba(78,201,240,0.4);
+  background: var(--blue); box-shadow: 0 0 8px var(--blue-glow);
   transform: scale(1.3);
 }
-@media (max-width: 1400px) { .toc-indicator { display: none; } }
+/* Tooltip on hover */
+.toc-dot[data-label]::after {
+  content: attr(data-label);
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+  background: var(--card); color: var(--white); border: 1px solid var(--border);
+  padding: 3px 9px; border-radius: 6px;
+  font-size: 0.85rem; line-height: 1.4; font-weight: 500; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.toc-dot[data-label]:hover::after { opacity: 1; }
+@media (max-width: 900px) { .toc-indicator { display: none; } }
+
+/* ── TOC Section (内文目錄) ── */
+.toc-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  margin: 1rem 0;
+}
+.toc-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.1rem 1.3rem; display: flex; gap: 1rem; align-items: flex-start;
+  border-left: 4px solid var(--purple); transition: border-color 0.2s, transform 0.2s;
+}
+.toc-item:hover { transform: translateX(3px); }
+.toc-item .num {
+  font-size: 2rem; font-weight: 800; line-height: 1; flex-shrink: 0; min-width: 3rem;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.toc-item .toc-body { flex: 1; }
+.toc-item h4 { margin-bottom: 0.2rem; font-size: 1rem; }
+.toc-item h4 a { color: var(--white); }
+.toc-item h4 a:hover { color: var(--blue); text-decoration: none; }
+.toc-item .desc { font-size: 0.88rem; color: var(--mgray); margin-bottom: 0; }
+@media (max-width: 768px) { .toc-list { grid-template-columns: 1fr; } }
 
 /* ── Footer ── */
 footer {
@@ -323,24 +385,44 @@ footer {
 }
 .animate { animation: fadeInUp 0.6s ease forwards; }
 
+/* ── Small Screens ── */
+@media (max-width: 600px) {
+  .hero { min-height: auto; padding: 5rem 0 3rem; }
+  .hero-stats { gap: 0.6rem; }
+  .hero-stat { min-width: 0; flex: 1 1 calc(50% - 0.6rem); padding: 0.9rem 0.8rem; }
+  .theme-toggle { padding: 4px 8px; font-size: 0.7rem; }
+  nav .nav-inner { padding: 0.5rem 1rem; gap: 0.5rem; }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ── Print ── */
 @media print {
   nav, .toc-indicator, .theme-toggle { display: none !important; }
-  body { background: none; }
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  body {
+    background: none;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
 }
 </style>
 </head>
 <body>
 
-<button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
-
 <!-- ═══════════════════ NAV ═══════════════════ -->
 <nav>
   <div class="nav-inner">
-    <div class="nav-brand">✈️ 港澳 5 日遊</div>
+    <a href="#top" class="nav-brand">✈️ 港澳 5 日遊</a>
     <div class="nav-links">
       <a href="#top">總覽</a>
+      <a href="#toc">大綱</a>
       <a href="#prep">行前須知</a>
       <a href="#day1">Day 1</a>
       <a href="#day2">Day 2</a>
@@ -348,18 +430,20 @@ footer {
       <a href="#day4">Day 4</a>
       <a href="#day5">Day 5</a>
     </div>
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
   </div>
 </nav>
 
 <!-- ═══════════════════ TOC INDICATOR ═══════════════════ -->
 <div class="toc-indicator" id="tocIndicator">
-  <div class="toc-dot" data-target="top" onclick="document.getElementById('top').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="prep" onclick="document.getElementById('prep').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="day1" onclick="document.getElementById('day1').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="day2" onclick="document.getElementById('day2').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="day3" onclick="document.getElementById('day3').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="day4" onclick="document.getElementById('day4').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="toc-dot" data-target="day5" onclick="document.getElementById('day5').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="top" data-label="總覽" onclick="document.getElementById('top').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="toc" data-label="大綱" onclick="document.getElementById('toc').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="prep" data-label="行前須知" onclick="document.getElementById('prep').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="day1" data-label="Day 1" onclick="document.getElementById('day1').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="day2" data-label="Day 2" onclick="document.getElementById('day2').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="day3" data-label="Day 3" onclick="document.getElementById('day3').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="day4" data-label="Day 4" onclick="document.getElementById('day4').scrollIntoView({behavior:'smooth'})"></div>
+  <div class="toc-dot" data-target="day5" data-label="Day 5" onclick="document.getElementById('day5').scrollIntoView({behavior:'smooth'})"></div>
 </div>
 
 <!-- ═══════════════════ CONTENT START ═══════════════════ -->
@@ -394,6 +478,61 @@ footer {
     </div>
   </div>
 </div>
+
+<!-- ── TOC Section (内文大綱) ── -->
+<section id="toc">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num" style="color:var(--purple)">📋 CONTENTS</div>
+      <h2>本文大綱</h2>
+      <p>快速瀏覽港澳五日行所有章節主題</p>
+    </div>
+    <div class="toc-list">
+      <div class="toc-item">
+        <div class="num">01</div>
+        <div class="toc-body">
+          <h4><a href="#prep">📋 行前須知</a></h4>
+          <p class="desc">航班資訊、住宿安排、交通貨幣與行前準備</p>
+        </div>
+      </div>
+      <div class="toc-item" style="border-left-color:var(--blue)">
+        <div class="num">02</div>
+        <div class="toc-body">
+          <h4><a href="#day1">🏯 Day 1 · 香港初見</a></h4>
+          <p class="desc">抵達香港，探索尖沙咀，夜遊維多利亞港</p>
+        </div>
+      </div>
+      <div class="toc-item" style="border-left-color:var(--green)">
+        <div class="num">03</div>
+        <div class="toc-body">
+          <h4><a href="#day2">🏙️ Day 2 · 港島漫遊</a></h4>
+          <p class="desc">灣仔利東街、中環上環、太平山纜車夜景</p>
+        </div>
+      </div>
+      <div class="toc-item" style="border-left-color:var(--orange)">
+        <div class="num">04</div>
+        <div class="toc-body">
+          <h4><a href="#day3">⛴ Day 3 · 雙城交匯</a></h4>
+          <p class="desc">從香港搭船赴澳門，入住上葡京，品嚐葡賞葡國菜</p>
+        </div>
+      </div>
+      <div class="toc-item" style="border-left-color:var(--yellow)">
+        <div class="num">05</div>
+        <div class="toc-body">
+          <h4><a href="#day4">🏛️ Day 4 · 舊城散策</a></h4>
+          <p class="desc">大三巴歷史城區，蛋撻，氹城金光大道</p>
+        </div>
+      </div>
+      <div class="toc-item" style="border-left-color:var(--pink)">
+        <div class="num">06</div>
+        <div class="toc-body">
+          <h4><a href="#day5">🚶 Day 5 · 漫步官也街</a></h4>
+          <p class="desc">官也街小吃、檸檬車露冰淇淋、搭機返台</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ── 航班與住宿總覽 ── -->
 <section id="prep">
@@ -490,7 +629,7 @@ footer {
         <div class="card-accent" style="background:var(--green)"></div>
         <div class="phase-num" style="color:var(--green)">Day 3</div>
         <h4>🚢 雙城交匯</h4>
-        <p style="font-size:0.85rem">搭船赴澳 · 上葡京 · 水舞間</p>
+        <p style="font-size:0.85rem">搭船赴澳 · 上葡京 · 葡賞</p>
       </div>
       <div class="phase-arrow">→</div>
       <div class="phase-card">
@@ -660,7 +799,7 @@ footer {
     <div class="section-header">
       <div class="section-num" style="color:var(--green)">05/11（日）</div>
       <h2>🚢 Day 3 · 雙城交匯</h2>
-      <p>從香港搭船前往澳門，入住上葡京，欣賞水舞間表演</p>
+      <p>從香港搭船前往澳門，入住上葡京，品嚐葡賞葡國菜</p>
     </div>
 
     <div class="timeline">
@@ -712,11 +851,6 @@ footer {
         <h4>🎡 永利皇宮</h4>
         <p>前往永利皇宮欣賞表演和搭乘纜車</p>
       </div>
-      <div class="timeline-item active">
-        <div class="time">20:00 — 21:30</div>
-        <h4>🎪 水舞間表演</h4>
-        <p>前往新濠天地欣賞世界級水上匯演</p>
-      </div>
       <div class="timeline-item">
         <div class="time">宵夜</div>
         <h4>🌙 八寶莊 / 冰室</h4>
@@ -725,8 +859,8 @@ footer {
     </div>
 
     <figure class="fig">
-      <img src="https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1280,h_853/w_79,x_14,y_14,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/aiyhl37gqf5cefosgsyl/%E6%BE%B3%E9%96%80%E6%B0%B4%E8%88%9E%E9%96%93%E6%B0%B4%E4%B8%8A%E5%8C%AF%E6%BC%94%E9%96%80%E7%A5%A8HouseofDancingWater.webp" alt="水舞間表演">
-      <figcaption>水舞間 — 全球最壯觀的水上匯演，新濠天地必看節目</figcaption>
+      <img src="https://img.grandlisboapalace.com/restaurants-n-bars/glp-restaurant-lisboa-bistro-hero-dt.jpg" alt="葡賞">
+      <figcaption>葡賞 — 澳門上葡京綜合度假村 2F，品嚐正宗澳門葡國菜</figcaption>
     </figure>
   </div>
 </section>
@@ -870,32 +1004,42 @@ footer {
 
 <script>
 /* ── Theme Toggle ── */
-let isLight = false;
+let isLight = false, isTransitioning = false;
 function toggleTheme() {
+  if (isTransitioning) return;
+  isTransitioning = true;
   isLight = !isLight;
   document.body.classList.toggle('light', isLight);
   document.getElementById('themeBtn').textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  setTimeout(() => { isTransitioning = false; }, 150);
 }
 
 /* ── TOC Indicator Active State ── */
-const sections = document.querySelectorAll('section[id]');
+const sections = document.querySelectorAll('.hero[id], section[id]');
 const tocDots = document.querySelectorAll('.toc-dot');
 function updateToc() {
   let current = '';
   sections.forEach(sec => {
     if (window.scrollY >= sec.offsetTop - 200) current = sec.id;
   });
+  if (!current && tocDots.length) current = tocDots[0].dataset.target;
   tocDots.forEach(dot => {
     dot.classList.toggle('active', dot.dataset.target === current);
   });
 }
 window.addEventListener('scroll', updateToc, { passive: true });
+updateToc();
 
 /* ── Intersection Observer for Animations ── */
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('animate'); });
+const observer_anim = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('animate');
+      observer_anim.unobserve(e.target);
+    }
+  });
 }, { threshold: 0.1 });
-document.querySelectorAll('.card, .callout, .quote-block, .danger-box, .arch-diagram, .fig').forEach(el => observer.observe(el));
+document.querySelectorAll('.card, .callout, .quote-block, .danger-box, .arch-diagram, .fig').forEach(el => observer_anim.observe(el));
 </script>
 </body>
 </html>
