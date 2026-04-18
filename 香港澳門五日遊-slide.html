@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>香港澳門 5 日遊</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;800&display=swap');
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ── Dark Theme (default) ── */
+  body {
+    font-family: 'Noto Sans TC', 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background: #000;
+    color: #e2e8f0;
+  }
+
+  /* ── Light Theme ── */
+  body.light { background: #e8ecf4; color: #1e293b; }
+  body.light .slide { color: #1e293b; }
+  body.light .card { background: rgba(0,0,0,0.04); }
+  body.light .card-sm { background: rgba(0,0,0,0.04); }
+  body.light .cblk { background: rgba(0,0,0,0.06); color: #334155; }
+  body.light .hint { background: rgba(0,0,0,0.04); }
+  body.light .sub { color: #64748b; }
+  body.light .img-cap { color: #64748b; }
+  body.light .mode-toggle, body.light .theme-toggle, body.light { background: rgba(99,102,241,0.85); }
+
+  /* ── Present Mode ── */
+  body.present { overflow: hidden; height: 100vh; }
+  body.present .slide {
+    position: absolute; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    display: none; align-items: stretch; justify-content: center;
+    overflow: hidden;
+  }
+  body.present .slide.active { display: flex; }
+  body.present .slide .inner {
+    width: 960px; height: 540px;
+    position: absolute; top: 50%; left: 50%;
+    transform-origin: center center;
+    display: flex; flex-direction: column;
+  }
+  body.present .nav-bar { display: flex; }
+  body.present .scroll-spacer { display: none; }
+
+  /* ── Scroll Mode ── */
+  body.scroll { overflow: auto; height: auto; }
+  body.scroll .slide {
+    position: relative;
+    width: 960px; height: 540px;
+    margin: 20px auto;
+    display: flex; align-items: stretch; justify-content: center;
+    overflow: hidden; border-radius: 12px;
+  }
+  body.scroll .slide .inner {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    transform: none !important;
+    position: relative; top: auto; left: auto;
+  }
+  body.scroll .nav-bar { display: none; }
+  body.scroll .scroll-spacer { display: block; height: 40px; }
+
+  /* ── Slide Inner ── */
+  .inner { padding: 28px 38px; }
+
+  .si { width: 100%; height: 100%; display: flex; flex-direction: column; }
+  .si.cc { align-items: center; text-align: center; justify-content: center; }
+  .fill { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  /* ── Typography ── */
+  .tag { font-size: 18px; letter-spacing: 2px; margin-bottom: 6px; }
+  .ttl { font-size: 42px; font-weight: 700; margin-bottom: 4px; }
+  .sub { font-size: 18px; color: #94a3b8; }
+
+  /* ── Components ── */
+  .card { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 14px; }
+  .card-sm { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 12px; }
+  .cblk {
+    background: rgba(0,0,0,0.4); border-radius: 10px; padding: 12px 16px;
+    font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    font-size: 18px; line-height: 1.7; color: #e2e8f0;
+  }
+  .hint { border-radius: 10px; padding: 8px 14px; font-size: 18px; text-align: center; }
+  .circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; flex-shrink: 0; color: #000;
+  }
+  .conn { width: 2px; height: 14px; flex-shrink: 0; }
+
+  /* ── Image ── */
+  .img-wrap { text-align: center; display: flex; justify-content: center; align-items: center; }
+  .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+  .img-split { display: flex; gap: 18px; flex: 1; align-items: center; }
+  .img-split .img-side { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .img-split .img-side img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+  .img-split .text-side { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .img-cap { font-size: 14px; color: #94a3b8; text-align: center; margin-top: 6px; }
+
+  /* ── Controls ── */
+  body.present .slide { cursor: pointer; }
+
+  .page-num {
+    position: fixed; bottom: 12px; right: 16px;
+    font-size: 22px; color: rgba(255,255,255,0.25);
+    z-index: 100; pointer-events: none;
+  }
+  body.scroll .page-num { display: none; }
+  body.light .page-num { color: rgba(0,0,0,0.25); }
+
+  .mode-toggle, .theme-toggle {
+    position: fixed; z-index: 200;
+    background: rgba(99,102,241,0.9); color: #fff; border: none; border-radius: 8px;
+    padding: 7px 16px; font-size: 16px; cursor: pointer; font-family: inherit;
+    backdrop-filter: blur(8px);
+  }
+  .mode-toggle { top: 16px; right: 16px; }
+  .theme-toggle { top: 16px; right: 200px; }
+
+  /* ── Print ── */
+  @media print {
+    body, body.present, body.scroll { background: none; overflow: visible; height: auto; }
+    .slide {
+      display: flex !important; position: relative !important;
+      top: auto !important; left: auto !important;
+      width: 960px !important; height: 540px !important;
+      margin: 0 auto !important; border-radius: 0 !important;
+      page-break-after: always;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .slide .inner {
+      width: 100% !important; height: 100% !important;
+      position: relative !important; top: auto !important; left: auto !important;
+      transform: none !important;
+    }
+    .nav-bar, .page-num, .mode-toggle, .theme-toggle, .scroll-spacer { display: none !important; }
+    @page { size: 960px 540px; margin: 0; }
+  }
+</style>
+</head>
+<body class="present">
+
+<button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+<button class="mode-toggle" id="modeBtn" onclick="toggleMode()">📜 切換滾動模式</button>
+
+<!-- ════════════════════════════════════════════
+     SLIDES START
+     ════════════════════════════════════════════ -->
+
+<!-- Slide 1: Title -->
+<div class="slide" style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)">
+<div class="inner"><div class="si cc">
+  <div style="font-size:20px;letter-spacing:4px;color:#a78bfa;margin-bottom:8px">✈️ TRAVEL PLAN</div>
+  <div style="font-size:54px;font-weight:800;line-height:1.3;margin-bottom:10px">香港澳門<br><span style="color:#facc15">5 日遊</span></div>
+  <div style="font-size:20px;color:#c4b5fd;margin-bottom:20px">港澳雙城美食與文化之旅</div>
+  <div style="font-size:22px;font-weight:600;color:#e2e8f0">2026.05.09 — 05.13</div>
+</div></div>
+</div>
+
+<!-- Slide 2: 行程總覽 -->
+<div class="slide" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#38bdf8">✈️ OVERVIEW</div>
+  <div class="ttl" style="margin-bottom:12px">行程總覽</div>
+  <div class="fill">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;align-content:center">
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(56,189,248,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">🛫</div>
+        <div style="font-size:22px;font-weight:700;color:#38bdf8;margin-bottom:4px">去程航班</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">長榮航空 05/09<br>10:05 TPE T2 → 12:05 HKG T1</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(56,189,248,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">🛬</div>
+        <div style="font-size:22px;font-weight:700;color:#38bdf8;margin-bottom:4px">回程航班</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">澳門航空 05/13<br>17:25 MFM → 19:15 TPE T1</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(167,139,250,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">🏨</div>
+        <div style="font-size:22px;font-weight:700;color:#a78bfa;margin-bottom:4px">香港住宿</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">香港尚圜服務公寓<br>Day 1 – Day 2</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(167,139,250,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">🏨</div>
+        <div style="font-size:22px;font-weight:700;color:#a78bfa;margin-bottom:4px">澳門住宿</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">澳門上葡京綜合度假村<br>Day 3 – Day 5</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 3: 行前須知 -->
+<div class="slide" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#a78bfa">📋 CHECKLIST</div>
+  <div class="ttl" style="margin-bottom:12px">行前須知</div>
+  <div class="fill">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;align-content:center">
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(167,139,250,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">💳</div>
+        <div style="font-size:22px;font-weight:700;color:#a78bfa;margin-bottom:4px">交通卡</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">香港：港幣或八達通<br>澳門：港幣或澳門通</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(250,204,21,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">💰</div>
+        <div style="font-size:22px;font-weight:700;color:#facc15;margin-bottom:4px">貨幣</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">港幣 HKD / 澳門幣 MOP<br>港幣在澳門通用，匯率 1:1 找零補差</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(56,189,248,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">📶</div>
+        <div style="font-size:22px;font-weight:700;color:#38bdf8;margin-bottom:4px">上網</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">建議購買港澳通用<br>eSIM、SIM 卡或漫遊</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;border:1px solid rgba(74,222,128,0.2)">
+        <div style="font-size:30px;margin-bottom:4px">📄</div>
+        <div style="font-size:22px;font-weight:700;color:#4ade80;margin-bottom:4px">證件</div>
+        <div style="font-size:17px;color:#94a3b8;line-height:1.5">香港：台胞證或港簽<br>澳門：持台灣護照免簽</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 4: Day 1 上午 (Image Split — 機場快線) -->
+<div class="slide" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#38bdf8">🛬 DAY 1 · 05/09（五）上午</div>
+  <div class="ttl" style="margin-bottom:12px">香港初見</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1295,h_864/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/zjjgoy9rh2alkukf1zm9/%E9%A6%99%E6%B8%AF%E6%A9%9F%E5%A0%B4%E5%BF%AB%E7%B6%AB%E5%84%AA%E6%83%A0%E8%BB%8A%E7%A5%A8.webp" alt="香港機場快線">
+    </div>
+    <div class="text-side" style="gap:10px">
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🍽️ 早餐自理</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🍽️ 午餐機上餐點</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🚄 抵達香港</div>
+        <div style="font-size:18px;color:#94a3b8">搭乘機場快線至香港站（約 25 分鐘），入住飯店</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 5: Day 1 下午 & 晚間 (Image Split — 維多利亞港夜景) -->
+<div class="slide" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#c084fc">🌃 DAY 1 · 05/09（五）下午 &amp; 晚間</div>
+  <div class="ttl" style="margin-bottom:8px">香港初見</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://res.klook.com/image/upload/activities/z2fmlx9za13g6gzndvh0.jpg" alt="維多利亞港夜景">
+    </div>
+    <div class="text-side" style="gap:6px">
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍰 媽咪雞蛋仔 → 🛍️ 深水埗 &amp; 尖沙咀</div>
+        <div style="font-size:15px;color:#94a3b8">黃道益堂・合益泰小食・旺記冰室・Bakehouse・Hashtage B+・祥興記生煎包<br>景點：1881・K11・海港城・鐘樓・星光大道</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍽️ 晚餐：妹記大排檔</div>
+        <div style="font-size:15px;color:#94a3b8">搭船完還會餓的話</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🌃 張保仔號·幻彩詠香江</div>
+        <div style="font-size:15px;color:#94a3b8">19:30 出發｜20:00–20:10 燈光秀｜宵夜甜品</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 6: Day 2 上午 (Image Split — 美心皇宮) -->
+<div class="slide" style="background:linear-gradient(135deg,#0c1222,#1a2744)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#4ade80">🏙️ DAY 2 · 05/10（六）上午</div>
+  <div class="ttl" style="margin-bottom:12px">港島漫遊</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://www.maximschinese.com.hk/assets/brand/c1fe918cbb85d70431bf8976677c8dad_950x426.jpg" alt="美心皇宮">
+    </div>
+    <div class="text-side" style="gap:10px">
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🥟 美心皇宮早餐</div>
+        <div style="font-size:18px;color:#94a3b8">享用港式早茶</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🛍️ 灣仔利東街逛街</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;font-weight:600;margin-bottom:2px">🍽️ 午餐：甘牌燒鵝</div>
+        <div style="font-size:18px;color:#94a3b8">人多就外帶回飯店吃</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 7: Day 2 下午 & 晚間 (Image Split — 太平山) -->
+<div class="slide" style="background:linear-gradient(135deg,#0c1222,#1a2744)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#38bdf8">🏙️ DAY 2 · 05/10（六）下午 &amp; 晚間</div>
+  <div class="ttl" style="margin-bottom:8px">港島漫遊</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://res.klook.com/image/upload/fl_lossy.progressive,q_85/c_fill,w_1000/v1684922056/blog/mmufvess7dwfac3vqaql.webp" alt="太平山纜車夜景">
+    </div>
+    <div class="text-side" style="gap:6px">
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🏬 中環上環逛街</div>
+        <div style="font-size:15px;color:#94a3b8">Bakehouse・Messina 冰淇淋・Schragels 貝果・蘭芳園<br>中環手扶梯・嘉咸壁畫街・皇后大道</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍵 美利飯店意式下午茶 15:00–18:00</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🚠 太平山纜車｜17:00 上山</div>
+        <div style="font-size:15px;color:#94a3b8">凌霄閣觀景平台</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍽️ 晚餐：鏞記酒家吃燒鵝 → 蘭桂坊</div>
+        <div style="font-size:15px;color:#94a3b8">19:00 下山後用餐｜宵夜蘭桂坊酒吧</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 8: Day 3 上午 (Image Split — 瑞記咖啡) -->
+<div class="slide" style="background:linear-gradient(135deg,#0f172a,#1e293b)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#fb923c">🚢 DAY 3 · 05/11（日）上午</div>
+  <div class="ttl" style="margin-bottom:8px">雙城交匯</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://blackmomo.tw/wp-content/uploads/20190710005510_90.jpg" alt="瑞記咖啡">
+    </div>
+    <div class="text-side" style="gap:8px">
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">☕ 瑞記咖啡早餐</div>
+        <div style="font-size:16px;color:#94a3b8">前往瑞記咖啡享用早餐</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🎁 採買伴手禮</div>
+        <div style="font-size:16px;color:#94a3b8">兆成行採買、惠康超市採買，回飯店取行李</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">⛴️ 搭船前往澳門</div>
+        <div style="font-size:16px;color:#94a3b8">13:30–14:00 前往港澳碼頭｜15:00 抵達凼仔碼頭，搭飯店接駁車</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🍜 八寶莊午餐</div>
+        <div style="font-size:16px;color:#94a3b8">上葡京 1F（北門）｜24 小時營業</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 9: Day 3 下午 & 晚間 (Image Split — 水舞間) -->
+<div class="slide" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#c084fc">🎭 DAY 3 · 05/11（日）下午 &amp; 晚間</div>
+  <div class="ttl" style="margin-bottom:8px">雙城交匯</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1280,h_853/w_79,x_14,y_14,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/aiyhl37gqf5cefosgsyl/%E6%BE%B3%E9%96%80%E6%B0%B4%E8%88%9E%E9%96%93%E6%B0%B4%E4%B8%8A%E5%8C%AF%E6%BC%94%E9%96%80%E7%A5%A8HouseofDancingWater.webp" alt="水舞間表演">
+    </div>
+    <div class="text-side" style="gap:8px">
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🛍️ 澳門上葡京綜合度假村逛街</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🍷 葡賞晚餐</div>
+        <div style="font-size:16px;color:#94a3b8">上葡京 2F｜12:00–15:00、18:00–22:00</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🎡 永利皇宮</div>
+        <div style="font-size:16px;color:#94a3b8">欣賞表演和搭乘纜車</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🎪 水舞間表演</div>
+        <div style="font-size:16px;color:#94a3b8">新濠天地｜20:00–21:30</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🌙 宵夜：八寶莊 / 冰室</div>
+        <div style="font-size:16px;color:#94a3b8">飯店 24 小時營業餐廳</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 10: Day 4 上午 (Image Split — 大三巴) -->
+<div class="slide" style="background:linear-gradient(135deg,#0c1222,#1a2744)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#4ade80">🏛️ DAY 4 · 05/12（一）上午</div>
+  <div class="ttl" style="margin-bottom:8px">舊城散策</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/%E6%99%9A%E4%B8%8A%E7%9A%84%E5%A4%A7%E4%B8%89%E5%B7%B4%E7%89%8C%E5%9D%8A.jpg" alt="大三巴牌坊">
+    </div>
+    <div class="text-side" style="gap:8px">
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🍳 飯店早餐</div>
+        <div style="font-size:16px;color:#94a3b8">享用澳門上葡京綜合度假村早餐</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🛍️ 舊城區逛街</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🥚 瑪嘉烈蛋撻</div>
+        <div style="font-size:16px;color:#94a3b8">平日 08:30–16:30｜假日 10:00–18:00｜週三休息</div>
+      </div>
+      <div class="card" style="padding:8px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🏛️ 大三巴 &amp; 歷史建築群</div>
+        <div style="font-size:16px;color:#94a3b8">大三巴牌坊、議事亭前地、玫瑰堂、盧家大屋、戀愛巷</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 11: Day 4 下午 & 晚間 (Image Split — 氹城金光大道) -->
+<div class="slide" style="background:linear-gradient(135deg,#0c1222,#1a2744)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#a78bfa">🏛️ DAY 4 · 05/12（一）下午 &amp; 晚間</div>
+  <div class="ttl" style="margin-bottom:8px">舊城散策</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Cotai_Strip_2020.jpg/1280px-Cotai_Strip_2020.jpg" alt="氹城金光大道">
+    </div>
+    <div class="text-side" style="gap:6px">
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍽️ 午餐</div>
+        <div style="font-size:15px;color:#94a3b8">倫記腸粉・牛雜・榴槤雪糕・義順牛奶公司</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🛍️ 氹城金光大道</div>
+        <div style="font-size:15px;color:#94a3b8">倫敦人（安德路蛋塔）・威尼斯人（貢多拉運河船）・巴黎人大廳</div>
+      </div>
+      <div class="card" style="padding:6px 12px">
+        <div style="font-size:19px;font-weight:600;margin-bottom:2px">🍽️ 晚餐：贏到粥（卜卜蜆）</div>
+        <div style="font-size:15px;color:#94a3b8">搭計程車前往｜晚上五星級飯店區逛街｜宵夜八寶莊/冰室</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 12: Day 5 上午 (Image Split — 檸檬車露) -->
+<div class="slide" style="background:linear-gradient(135deg,#0f172a,#1e293b)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#4ade80">🚶 DAY 5 · 05/13（二）上午</div>
+  <div class="ttl" style="margin-bottom:8px">漫步官也街</div>
+  <div class="img-split">
+    <div class="img-side">
+      <img src="https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1295,h_863/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/svhiikhn2ebwlds3iuwv/%E6%AA%B8%E6%AA%AC%E8%BB%8A%E9%9C%B2-%E4%B8%BB%E6%95%99%E5%B7%B7%E5%BA%97.webp" alt="檸檬車露">
+    </div>
+    <div class="text-side" style="gap:8px">
+      <div class="card" style="padding:7px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🍳 飯店早餐</div>
+        <div style="font-size:16px;color:#94a3b8">享用澳門上葡京綜合度假村早餐</div>
+      </div>
+      <div class="card" style="padding:7px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🚶 官也街逛街</div>
+        <div style="font-size:16px;color:#94a3b8">檸檬車露（冰淇淋）・世紀咖啡（豬扒包）・爆打檸檬</div>
+      </div>
+      <div class="card" style="padding:7px 12px">
+        <div style="font-size:20px;font-weight:600;margin-bottom:2px">🍽️ 午餐：O Castiço</div>
+        <div style="font-size:16px;color:#94a3b8">葡式料理</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 13: Day 5 下午 · 歸途 -->
+<div class="slide" style="background:linear-gradient(135deg,#0f172a,#1e293b)">
+<div class="inner"><div class="si">
+  <div class="tag" style="color:#38bdf8">🛫 DAY 5 · 05/13（二）下午</div>
+  <div class="ttl" style="margin-bottom:10px">歸途</div>
+  <div class="fill" style="gap:0">
+    <div style="display:flex;gap:14px;align-items:center">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="circle" style="background:#a78bfa">1</div>
+        <div class="conn" style="background:linear-gradient(#a78bfa,transparent)"></div>
+      </div>
+      <div class="card" style="flex:1;padding:10px 14px">
+        <div style="font-size:22px;font-weight:600;color:#a78bfa;margin-bottom:2px">🚌 前往機場</div>
+        <div style="font-size:18px;color:#cbd5e1">中餐結束後約下午兩點回飯店取行李，搭接駁車至機場</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="circle" style="background:#38bdf8">2</div>
+      </div>
+      <div class="card" style="flex:1;padding:10px 14px">
+        <div style="font-size:22px;font-weight:600;color:#38bdf8;margin-bottom:2px">🍽️ 晚餐：機上餐點</div>
+      </div>
+    </div>
+  </div>
+  <div class="hint" style="background:rgba(56,189,248,0.1);color:#38bdf8;margin-top:14px">
+    ✈️ 17:25 搭乘澳門航空 MFM → 19:15 抵達 TPE T1
+  </div>
+</div></div>
+</div>
+
+<!-- Slide 14: CTA -->
+<div class="slide" style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)">
+<div class="inner"><div class="si cc">
+  <div style="font-size:56px;font-weight:800;line-height:1.3;margin-bottom:12px">港澳雙城<br><span style="color:#facc15">精彩可期</span></div>
+  <div style="font-size:24px;color:#c4b5fd;margin-bottom:24px;line-height:1.8">2026.05.09 — 05.13</div>
+  <div style="display:inline-block;background:linear-gradient(135deg,#facc15,#fb923c);color:#000;font-weight:800;font-size:24px;padding:12px 32px;border-radius:10px">出發吧！🚀</div>
+</div></div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDES END
+     ════════════════════════════════════════════ -->
+
+<div class="scroll-spacer"></div>
+<div class="page-num" id="pn"></div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const inners = document.querySelectorAll('.inner');
+let cur = 0, isScroll = false, isLight = false;
+let darkBgs = null;
+const lightBgs = [
+  'linear-gradient(135deg,#e8ecf4,#d4dae6,#f0f2f8)',
+  'linear-gradient(135deg,#e2e8f0,#eef2f7)',
+  'linear-gradient(135deg,#edf2f7,#e2e8f0)',
+  'linear-gradient(135deg,#dbeafe,#ede9fe)',
+  'linear-gradient(135deg,#e0e7ff,#f0f0ff)',
+];
+let origStyles = null;
+const lightColorMap = {
+  '#e2e8f0':'#1e293b','#c4b5fd':'#6d28d9','#c084fc':'#7c3aed',
+  '#cbd5e1':'#334155','#94a3b8':'#475569','#fca5a5':'#dc2626',
+  '#86efac':'#16a34a','#fde68a':'#a16207','#facc15':'#a16207',
+  '#4ade80':'#16a34a','#38bdf8':'#0284c7','#a78bfa':'#7c3aed',
+  '#f87171':'#dc2626','#ef4444':'#b91c1c','#fb923c':'#c2410c',
+  '#f472b6':'#be185d',
+  'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)',
+  'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)',
+};
+
+function scaleSlides() {
+  if (isScroll) return;
+  const s = Math.min(window.innerWidth / 960, window.innerHeight / 540);
+  inners.forEach(el => {
+    el.style.transform = `translate(-50%,-50%) scale(${s})`;
+    el.style.left = '50%';
+    el.style.top = '50%';
+  });
+}
+
+function render() {
+  if (isScroll) return;
+  slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+  document.getElementById('pn').textContent = (cur + 1) + ' / ' + slides.length;
+}
+
+function go(dir) {
+  cur = Math.max(0, Math.min(slides.length - 1, cur + dir));
+  render();
+}
+
+function toggleMode() {
+  isScroll = !isScroll;
+  document.body.classList.toggle('scroll', isScroll);
+  document.body.classList.toggle('present', !isScroll);
+  document.getElementById('modeBtn').textContent = isScroll ? '🖥️ 切換簡報模式' : '📜 切換滾動模式';
+  if (isScroll) {
+    inners.forEach(el => { el.style.transform = ''; el.style.left = ''; el.style.top = ''; });
+  } else { scaleSlides(); render(); }
+}
+
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('themeBtn').textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  if (!darkBgs) darkBgs = [...slides].map(s => s.style.background);
+  slides.forEach((s, i) => {
+    s.style.background = isLight ? lightBgs[i % lightBgs.length] : darkBgs[i];
+  });
+  if (!origStyles) {
+    origStyles = new Map();
+    document.querySelectorAll('.slide [style]').forEach(el => {
+      origStyles.set(el, el.getAttribute('style'));
+    });
+  }
+  origStyles.forEach((orig, el) => {
+    if (isLight) {
+      let s = orig;
+      for (const [d, l] of Object.entries(lightColorMap)) s = s.replaceAll(d, l);
+      el.setAttribute('style', s);
+    } else {
+      el.setAttribute('style', orig);
+    }
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (isScroll) return;
+  if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); go(1); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === 'Home') { cur = 0; render(); }
+  if (e.key === 'End') { cur = slides.length - 1; render(); }
+});
+
+document.addEventListener('click', e => {
+  if (isScroll || e.target.closest('.mode-toggle') || e.target.closest('.theme-toggle')) return;
+  go(e.clientX < window.innerWidth * 0.3 ? -1 : 1);
+});
+
+window.addEventListener('resize', () => { if (!isScroll) scaleSlides(); });
+
+let wheelLock = false;
+document.addEventListener('wheel', e => {
+  if (isScroll || wheelLock) return;
+  e.preventDefault();
+  go(e.deltaY > 0 ? 1 : -1);
+  wheelLock = true;
+  setTimeout(() => wheelLock = false, 300);
+}, { passive: false });
+
+scaleSlides();
+render();
+</script>
+</body>
+</html>
